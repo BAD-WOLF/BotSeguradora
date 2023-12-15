@@ -1,46 +1,11 @@
 const venom = require('venom-bot');
-
-// Função utilitária para criar menus e perguntas
-const createMenu = (text, options = [], questions = []) => ({ text, options, questions });
-
-// Exemplo de estrutura aninhada
-const menuOptions = createMenu('Escolha um número para explorar nossos serviços:', [
-  createMenu('Seguros', [
-    createMenu('Seguro Auto', [
-      createMenu('Doação', [], [
-        { text: 'Qual é o seu nome?', answer: '' },
-        { text: 'Qual é o seu CPF?', answer: '' },
-        // Adicione mais perguntas conforme necessário
-      ]),
-      createMenu('Opção1', [], []),
-      createMenu('Opção2', [], []),
-      createMenu('Opção3', [],  []),
-    ]),
-    createMenu('Seguro Moto', [],  [
-      { text: "nome?", answer: '' },
-      { text: "cpf?", answer: '' }
-    ]),
-    createMenu('Seguro Caminhão', [],  []),
-    createMenu('Seguro Vida', [], []),
-    createMenu('Previdência', [], []),
-    createMenu('Consórcio', [], []),
-  ]),
-  createMenu('Compra', [
-    createMenu('Compra Auto', [], []),
-    createMenu('Compra Casa', [], []),
-    createMenu('Compra Outros', [], []),
-  ]),
-  createMenu('Venda', [
-    createMenu('Venda Auto', [], []),
-    createMenu('Venda Casa', [], []),
-    createMenu('Venda Outros', [], []),
-  ]),
-]);
+const { menuOptions } = require("./menu/menuOptions");
 
 let currentMenu = menuOptions;
 let previousMenus = [];
 let currentQuestions = [];
 let userAnswers = {}; // Armazena as respostas do usuário
+let menuInitialized = false;
 
 // Função para enviar opções de menu ou perguntas ao usuário
 function sendOptionsOrQuestion(client, from) {
@@ -75,12 +40,9 @@ venom.create(
 ).then((client) => {
   client.onMessage(async (message) => {
     if (!message.isGroupMsg) {
-      if (!currentMenu || message.body.toLowerCase() === 'oi' || message.body.toLowerCase() === 'bom dia' || message.body.toLowerCase() === 'boa tarde') {
-        // Se não houver menu atual ou se for a primeira mensagem, envia o menu
-        currentMenu = menuOptions;
-        previousMenus = [];
-        currentQuestions = [];
-        userAnswers = {}; // Reseta as respostas do usuário
+      if (!menuInitialized) {
+        // Se não houver menu inicializado, envia o menu principal
+        menuInitialized = true;
         sendOptionsOrQuestion(client, message.from);
       } else if (message.body === '0' && previousMenus.length > 0) {
         // Usuário escolheu voltar ao menu anterior
