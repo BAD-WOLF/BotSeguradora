@@ -1,5 +1,10 @@
+const fs = require('fs');
+const path = require('path');
+const yaml = require('js-yaml');
 const venom = require('venom-bot');
 const { menuOptions } = require("./menu/menuOptions");
+
+const QUESTIONS_FOLDER = 'questions';
 
 let currentMenu = menuOptions;
 let previousMenus = [];
@@ -7,22 +12,56 @@ let currentQuestions = [];
 let userAnswers = {}; // Armazena as respostas do usuário
 let menuInitialized = false;
 
+// Cria a pasta 'questions' se ela não existir
+if (!fs.existsSync(QUESTIONS_FOLDER)) {
+  fs.mkdirSync(QUESTIONS_FOLDER);
+}
+
+// Função para criar a pasta do usuário se ela não existir
+function createUserFolder(userId) {
+  const userFolderPath = path.join(QUESTIONS_FOLDER, userId);
+  if (!fs.existsSync(userFolderPath)) {
+    fs.mkdirSync(userFolderPath);
+  }
+}
+
 // Função para enviar opções de menu ou perguntas ao usuário
-function sendOptionsOrQuestion(client, from) {
-  if (currentQuestions.length > 0) {
-    // Se houver perguntas, envia a próxima pergunta
-    const currentQuestion = currentQuestions[0];
-    client.sendText(from, currentQuestion.text);
-  } else {
-    // Se não houver perguntas, envia as opções de menu
+function sendOptionsOrQuestion(client, from, welcomeMessage = false) {
+  const sendWelcomeMessage = () => {
+    if (welcomeMessage) {
+      const welcomeText = "Olá! Sou o Sérgio Neres, consultor de seguros e especialista em proteção financeira e familiar. Seja bem-vindo! Estou aqui para ajudar a garantir a segurança e tranquilidade para você e sua família.";
+      return client.sendText(from, welcomeText);
+    }
+    return Promise.resolve();
+  };
+
+  const sendMenuOrQuestion = () => {
+    if (currentQuestions.length > 0) {
+      const currentQuestion = currentQuestions[0];
+      return client.sendText(from, currentQuestion.text);
+    }
+
     let menuText = `${currentMenu.text}\n${currentMenu.options.map((option, index) => `${index + 1} ~> ${option.text}`).join('\n')}`;
 
-    // Se houver menus anteriores, adiciona a opção de voltar ao menu anterior
     if (previousMenus.length > 0) {
       menuText += '\n0 ~> Voltar ao menu anterior';
     }
 
-    client.sendText(from, menuText);
+    return client.sendText(from, menuText);
+  };
+
+  return sendWelcomeMessage().then(sendMenuOrQuestion);
+}
+
+// Função para criar um arquivo YAML com as respostas do usuário
+function writeUserAnswersToFile(userId, fileName, answers) {
+  try {
+    const filePath = path.join(QUESTIONS_FOLDER, userId, fileName);
+    const yamlData = yaml.dump(answers);
+    fs.writeFileSync(filePath, yamlData, 'utf8');
+    console.log(`Arquivo ${filePath} criado/atualizado com sucesso!`);
+  } catch (error) {
+    console.error(`Erro ao criar/atualizar o arquivo ${fileName}:`, error);
   }
 }
 
@@ -40,44 +79,45 @@ venom.create(
 ).then((client) => {
   client.onMessage(async (message) => {
     if (!message.isGroupMsg) {
+      const userId = message.from;
+      createUserFolder(userId); // Cria a pasta do usuário
       if (!menuInitialized) {
-        // Se não houver menu inicializado, envia o menu principal
         menuInitialized = true;
-        sendOptionsOrQuestion(client, message.from);
+        sendOptionsOrQuestion(client, userId, true);
       } else if (message.body === '0' && previousMenus.length > 0) {
-        // Usuário escolheu voltar ao menu anterior
         currentMenu = previousMenus.pop();
-        sendOptionsOrQuestion(client, message.from);
+        sendOptionsOrQuestion(client, userId);
       } else if (currentQuestions.length > 0) {
-        // Se há perguntas, salva a resposta do usuário e envia a próxima pergunta
         const currentQuestion = currentQuestions.shift();
         currentQuestion.answer = message.body;
 
         if (currentQuestions.length > 0) {
-          sendOptionsOrQuestion(client, message.from);
+          sendOptionsOrQuestion(client, userId);
         } else {
-          // Se não houver mais perguntas, armazena as respostas do usuário
-          userAnswers[currentMenu.text] = currentMenu.questions.reduce((acc, question) => {
+          if (!userAnswers[userId]) {
+            userAnswers[userId] = {};
+          }
+
+          userAnswers[userId][currentMenu.text] = currentMenu.questions.reduce((acc, question) => {
             acc[question.text] = question.answer;
             return acc;
           }, {});
 
-          // Retorna ao menu anterior
-          currentMenu = previousMenus.pop();
-          sendOptionsOrQuestion(client, message.from);
+          const fileName = `${currentMenu.text.replace(/\s/g, '_')}.yaml`;
+          writeUserAnswersToFile(userId, fileName, userAnswers[userId][currentMenu.text]);
 
-          // Exibe o objeto com as respostas do usuário apenas quando todas as perguntas foram respondidas
+          currentMenu = previousMenus.pop();
+          sendOptionsOrQuestion(client, userId);
+
           console.log('Respostas do Usuário:', userAnswers);
         }
       } else if (currentMenu.options[message.body - 1]) {
-        // Usuário escolheu um tópico válido
         previousMenus.push(currentMenu);
         currentMenu = currentMenu.options[message.body - 1];
-        currentQuestions = currentMenu.questions.slice(); // Copia as perguntas do menu
-        sendOptionsOrQuestion(client, message.from);
+        currentQuestions = currentMenu.questions.slice();
+        sendOptionsOrQuestion(client, userId);
       } else {
-        // Mensagem inválida
-        client.sendText(message.from, 'Opção inválida. Por favor, escolha um número válido.');
+        client.sendText(userId, 'Opção inválida. Por favor, escolha um número válido.');
       }
     }
   });
