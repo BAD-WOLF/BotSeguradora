@@ -4,13 +4,26 @@ const yaml = require('js-yaml');
 const venom = require('venom-bot');
 const { menuOptions } = require("./menu/menuOptions");
 
-const QUESTIONS_FOLDER = 'questions'; // Nome da pasta para armazenar os arquivos YAML
+const QUESTIONS_FOLDER = 'questions';
 
 let currentMenu = menuOptions;
 let previousMenus = [];
 let currentQuestions = [];
 let userAnswers = {}; // Armazena as respostas do usuário
 let menuInitialized = false;
+
+// Cria a pasta 'questions' se ela não existir
+if (!fs.existsSync(QUESTIONS_FOLDER)) {
+  fs.mkdirSync(QUESTIONS_FOLDER);
+}
+
+// Função para criar a pasta do usuário se ela não existir
+function createUserFolder(userId) {
+  const userFolderPath = path.join(QUESTIONS_FOLDER, userId);
+  if (!fs.existsSync(userFolderPath)) {
+    fs.mkdirSync(userFolderPath);
+  }
+}
 
 // Função para enviar opções de menu ou perguntas ao usuário
 function sendOptionsOrQuestion(client, from, welcomeMessage = false) {
@@ -41,17 +54,12 @@ function sendOptionsOrQuestion(client, from, welcomeMessage = false) {
 }
 
 // Função para criar um arquivo YAML com as respostas do usuário
-function writeUserAnswersToFile(userId, topic, answers) {
+function writeUserAnswersToFile(userId, fileName, answers) {
   try {
-    const userFolder = path.join(QUESTIONS_FOLDER, userId);
-    if (!fs.existsSync(userFolder)) {
-      fs.mkdirSync(userFolder, { recursive: true });
-    }
-
-    const fileName = path.join(userFolder, `${topic.replace(/\s/g, '_')}.yaml`);
+    const filePath = path.join(QUESTIONS_FOLDER, userId, fileName);
     const yamlData = yaml.dump(answers);
-    fs.writeFileSync(fileName, yamlData, 'utf8');
-    console.log(`Arquivo ${fileName} criado/atualizado com sucesso!`);
+    fs.writeFileSync(filePath, yamlData, 'utf8');
+    console.log(`Arquivo ${filePath} criado/atualizado com sucesso!`);
   } catch (error) {
     console.error(`Erro ao criar/atualizar o arquivo ${fileName}:`, error);
   }
@@ -72,6 +80,7 @@ venom.create(
   client.onMessage(async (message) => {
     if (!message.isGroupMsg) {
       const userId = message.from;
+      createUserFolder(userId); // Cria a pasta do usuário
       if (!menuInitialized) {
         menuInitialized = true;
         sendOptionsOrQuestion(client, userId, true);
@@ -94,7 +103,8 @@ venom.create(
             return acc;
           }, {});
 
-          writeUserAnswersToFile(userId, currentMenu.text, userAnswers[userId][currentMenu.text]);
+          const fileName = `${currentMenu.text.replace(/\s/g, '_')}.yaml`;
+          writeUserAnswersToFile(userId, fileName, userAnswers[userId][currentMenu.text]);
 
           currentMenu = previousMenus.pop();
           sendOptionsOrQuestion(client, userId);
