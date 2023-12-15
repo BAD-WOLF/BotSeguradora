@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "fs": "^0.0.1-security",
+    "js-yaml": "^4.1.0",
     "telegraf": "^4.15.3",
     "venom-bot": "^5.0.21"
   },
