@@ -3,5 +3,8 @@
     "fs": "^0.0.1-security",
     "telegraf": "^4.15.3",
     "venom-bot": "^5.0.21"
+  },
+  "scripts": {
+    "start": "npm install && node wmain.js"
   }
 }
