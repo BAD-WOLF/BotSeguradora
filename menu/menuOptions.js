@@ -1,75 +1,46 @@
 const createMenu = (text, options = [], questions = []) => ({ text, options, questions });
-// Exemplo de estrutura aninhada
-const menuOptions = createMenu('Para continuarmos, por favor, selecione a opção que melhor atende às suas necessidades:', [
-  createMenu('1️⃣ Seguro auto 🚗', [
-    createMenu('Seguro Auto', [
-      createMenu('Doação', [], [
-        { text: 'Qual é o seu nome?', answer: '' },
-        { text: 'Qual é o seu CPF?', answer: '' },
-        { text: 'Uma letra, qualquer letra?', answer: '' },
-        // Adicione mais perguntas conforme necessário
-      ]),
-      createMenu('Opção1', [], []),
-      createMenu('Opção2', [], []),
-      createMenu('Opção3', [], []),
+
+const deliveryMenu = createMenu('Bem-vindo ao nosso serviço de entrega! Como posso ajudar você hoje?', [
+  createMenu('1️⃣ Fazer um Pedido 🍕', [
+    createMenu('Pizza', [], [
+      { text: 'Qual sabor de pizza você deseja?', answer: '' },
+      { text: 'Tamanho (P, M, G)?', answer: '' },
+      { text: 'Alguma observação especial?', answer: '' },
     ]),
-    createMenu('Seguro Moto', [], [
-      { text: "nome?", answer: '' },
-      { text: "cpf?", answer: '' }
+    createMenu('Hamburguer', [], [
+      { text: 'Qual tipo de hambúrguer você deseja?', answer: '' },
+      { text: 'Acompanhamentos desejados?', answer: '' },
     ]),
-    createMenu('Seguro Caminhão', [], []),
-    createMenu('Seguro Vida', [], []),
-    createMenu('Previdência', [], []),
-    createMenu('Consórcio', [], []),
-  ]),
-  createMenu('2️⃣ Seguro moto 🛵', [
-    createMenu('Compra Auto', [], [
-      { text: 'Qual é o seu nome?', answer: '' },
-      { text: 'Qual é o seu CPF?', answer: '' },
+    createMenu('Sushi', [], [
+      { text: 'Combo ou peças avulsas?', answer: '' },
+      { text: 'Alguma restrição alimentar?', answer: '' },
     ]),
-    createMenu('Compra Casa', [], []),
-    createMenu('Compra Outros', [], []),
   ]),
-  createMenu('3️⃣ Plano de saúde 🩺', [
-    createMenu('Compra Auto', [], []),
-    createMenu('Compra Casa', [], []),
-    createMenu('Compra Outros', [], []),
+  createMenu('2️⃣ Rastrear Pedido 🚚', [
+    createMenu('Digite o código de rastreamento:', [], [
+      { text: 'Código de rastreamento', answer: '' },
+    ]),
   ]),
-  createMenu('4️⃣ Plano dental 🦷', [
-    createMenu('Compra Auto', [], []),
-    createMenu('Compra Casa', [], []),
-    createMenu('Compra Outros', [], []),
+  createMenu('3️⃣ Informações sobre Entrega 🕒', [
+    createMenu('Verificar Status de Entrega', [], [
+      { text: 'Número do Pedido', answer: '' },
+    ]),
+    createMenu('Alterar Endereço de Entrega', [], [
+      { text: 'Novo Endereço', answer: '' },
+    ]),
+    createMenu('Dúvidas sobre Prazo de Entrega', [], []),
   ]),
-  createMenu('5️⃣ Plano Pet 🐶 🐱', [
-    createMenu('Venda Auto', [], []),
-    createMenu('Venda Casa', [], []),
-    createMenu('Venda Outros', [], []),
+  createMenu('4️⃣ Suporte ao Cliente 📞', [
+    createMenu('Falar com um Atendente', [], []),
+    createMenu('Relatar Problema com Pedido', [], [
+      { text: 'Descreva o problema', answer: '' },
+    ]),
+    createMenu('Outras Questões', [], []),
   ]),
-  createMenu("6️⃣ Telemedicina 24:00 hrs 📱", [
-    createMenu('Compra Auto', [], []),
-    createMenu('Compra Casa', [], []),
-    createMenu('Compra Outros', [], []),
-  ]),
-  createMenu("7️⃣ Seguro de Vida 👨‍👨‍👧‍👦", [
-    createMenu('Compra Auto', [], []),
-    createMenu('Compra Casa', [], []),
-    createMenu('Compra Outros', [], []),
-  ]),
-  createMenu("8️⃣ Previdência Privada 💰", [
-    createMenu('Compra Auto', [], []),
-    createMenu('Compra Casa', [], []),
-    createMenu('Compra Outros', [], []),
-  ]),
-  createMenu("9️⃣ Consórcio 🏠🚙🚛🏍🚴", [
-    createMenu('Compra Auto', [], []),
-    createMenu('Compra Casa', [], []),
-    createMenu('Compra Outros', [], []),
-  ]),
-  createMenu("🔟 Atendimento humano", [
-    createMenu('Compra Auto', [], []),
-    createMenu('Compra Casa', [], []),
-    createMenu('Compra Outros', [], []),
+  createMenu('5️⃣ Promoções e Descontos 🎉', [
+    createMenu('Ofertas do Dia', [], []),
+    createMenu('Cupons Disponíveis', [], []),
   ]),
 ]);
 
-exports.menuOptions = menuOptions;
+exports.menuOptions = deliveryMenu;

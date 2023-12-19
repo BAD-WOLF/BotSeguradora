@@ -1,7 +1,7 @@
+const venom = require('venom-bot');
 const fs = require('fs');
 const path = require('path');
 const yaml = require('js-yaml');
-const venom = require('venom-bot');
 const { menuOptions } = require("./menu/menuOptions");
 
 const QUESTIONS_FOLDER = 'questions';
@@ -103,18 +103,33 @@ venom.create(
             return acc;
           }, {});
 
-          const fileName = `${currentMenu.text.replace(/\s/g, '_')}.yaml`;
-          writeUserAnswersToFile(userId, fileName, userAnswers[userId][currentMenu.text]);
-
-          currentMenu = previousMenus.pop();
-          sendOptionsOrQuestion(client, userId);
-
-          console.log('Respostas do Usuário:', userAnswers);
+          // Exibe a opção de salvar ou refazer
+          client.sendText(userId, '1 ~> Salvar\n2 ~> Refazer');
         }
       } else if (currentMenu.options[message.body - 1]) {
         previousMenus.push(currentMenu);
         currentMenu = currentMenu.options[message.body - 1];
         currentQuestions = currentMenu.questions.slice();
+        sendOptionsOrQuestion(client, userId);
+      } else if (message.body === '1') {
+        // Usuário escolheu salvar
+        // Implemente aqui o código para lidar com a opção de salvar
+        const fileName = `${currentMenu.text.replace(/\s/g, '_')}.yaml`;
+        writeUserAnswersToFile(userId, fileName, userAnswers[userId][currentMenu.text]);
+
+        // Reinicia o menu
+        currentMenu = menuOptions;
+        previousMenus = [];
+        currentQuestions = [];
+        userAnswers = {};
+        sendOptionsOrQuestion(client, userId);
+      } else if (message.body === '2') {
+        // Usuário escolheu refazer
+        // Reinicia o menu
+        currentMenu = menuOptions;
+        previousMenus = [];
+        currentQuestions = [];
+        userAnswers = {};
         sendOptionsOrQuestion(client, userId);
       } else {
         client.sendText(userId, 'Opção inválida. Por favor, escolha um número válido.');
