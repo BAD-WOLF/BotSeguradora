@@ -1,4 +1,6 @@
-const createMenu = (text, options = [], questions = []) => ({ text, options, questions });
+const createMenu = (text, options = [], questions = [], text_after) => ({ text, options, questions, text_after });
+
+const welcome = "Seja bem-vindo ao nosso serviço de delivery! Estamos animados em ter você conosco.";
 
 const deliveryMenu = createMenu('Bem-vindo ao nosso serviço de entrega! Como posso ajudar você hoje?', [
   createMenu('1️⃣ Fazer um Pedido 🍕', [
@@ -6,7 +8,7 @@ const deliveryMenu = createMenu('Bem-vindo ao nosso serviço de entrega! Como po
       { text: 'Qual sabor de pizza você deseja?', answer: '' },
       { text: 'Tamanho (P, M, G)?', answer: '' },
       { text: 'Alguma observação especial?', answer: '' },
-    ]),
+    ], "seu pedido foi anotado!! ✅"),
     createMenu('Hamburguer', [], [
       { text: 'Qual tipo de hambúrguer você deseja?', answer: '' },
       { text: 'Acompanhamentos desejados?', answer: '' },
@@ -44,3 +46,4 @@ const deliveryMenu = createMenu('Bem-vindo ao nosso serviço de entrega! Como po
 ]);
 
 exports.menuOptions = deliveryMenu;
+exports.welcome = welcome;

@@ -2,7 +2,7 @@ const venom = require('venom-bot');
 const fs = require('fs');
 const path = require('path');
 const yaml = require('js-yaml');
-const { menuOptions } = require("./menu/menuOptions");
+const { welcome, menuOptions } = require("./menu/menuOptions");
 
 const QUESTIONS_FOLDER = 'questions';
 
@@ -29,7 +29,7 @@ function createUserFolder(userId) {
 function sendOptionsOrQuestion(client, from, welcomeMessage = false) {
   const sendWelcomeMessage = () => {
     if (welcomeMessage) {
-      const welcomeText = "Olá! Sou o Sérgio Neres, consultor de seguros e especialista em proteção financeira e familiar. Seja bem-vindo! Estou aqui para ajudar a garantir a segurança e tranquilidade para você e sua família.";
+      const welcomeText = welcome;
       return client.sendText(from, welcomeText);
     }
     return Promise.resolve();
@@ -116,6 +116,11 @@ venom.create(
         // Implemente aqui o código para lidar com a opção de salvar
         const fileName = `${currentMenu.text.replace(/\s/g, '_')}.yaml`;
         writeUserAnswersToFile(userId, fileName, userAnswers[userId][currentMenu.text]);
+        // Se houver uma mensagem para exibir após salvar, envia aqui
+        if (currentMenu.text_after) {
+          await client.sendText(userId, currentMenu.text_after);
+        }
+
 
         // Reinicia o menu
         currentMenu = menuOptions;
