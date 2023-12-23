@@ -2,7 +2,20 @@ const venom = require('venom-bot');
 const fs = require('fs');
 const path = require('path');
 const yaml = require('js-yaml');
-const { welcome, menuOptions } = require("./menu/menuOptions");
+// Obtendo o separador de caminho como uma string
+const sep  = path.sep;
+const { welcome } = require("."+sep+"menu"+sep+"menuOptions");
+// Pode fazer um menu personalizado com JSON tambem (descomente a linha abaixo):
+// const { menuOptions } = require("."+sep+"menu"+sep+"menuOptions");
+
+// Especificando o caminho do arquivo YAML
+const filePath = path.join('menu', 'menuOptions.yaml');
+
+// Lendo o conteúdo do arquivo YAML
+const yamlString = fs.readFileSync(filePath, 'utf-8');
+
+// Convertendo YAML para JSON
+const menuOptions = yaml.load(yamlString);
 
 const QUESTIONS_FOLDER = 'questions';
 
@@ -74,7 +87,7 @@ venom.create(
   },
   (browser, waPage) => {
     console.log('Browser PID:', browser.process().pid);
-    waPage.screenshot({ path: 'screenshot/screenshot.png' });
+    waPage.screenshot({ path: path.join('screenshot', 'screenshot.png') });
   }
 ).then((client) => {
   client.onMessage(async (message) => {
