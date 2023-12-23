@@ -7,6 +7,7 @@
     "venom-bot": "^5.0.21"
   },
   "scripts": {
-    "start": "npm install && node wmain.js"
+    "start": "npm install && node wmain.js",
+    "menu-json-to-yaml": "node convert.js"
   }
 }

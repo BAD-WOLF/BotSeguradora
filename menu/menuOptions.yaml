@@ -1,0 +1,77 @@
+text: Bem-vindo ao nosso serviço de entrega! Como posso ajudar você hoje?
+options:
+  - text: 1️⃣ Fazer um Pedido 🍕
+    options:
+      - text: Pizza
+        options: []
+        questions:
+          - text: Qual sabor de pizza você deseja?
+            answer: ''
+          - text: Tamanho (P, M, G)?
+            answer: ''
+          - text: Alguma observação especial?
+            answer: ''
+        text_after: seu pedido foi anotado!! ✅
+      - text: Hamburguer
+        options: []
+        questions:
+          - text: Qual tipo de hambúrguer você deseja?
+            answer: ''
+          - text: Acompanhamentos desejados?
+            answer: ''
+      - text: Sushi
+        options: []
+        questions:
+          - text: Combo ou peças avulsas?
+            answer: ''
+          - text: Alguma restrição alimentar?
+            answer: ''
+    questions: []
+  - text: 2️⃣ Rastrear Pedido 🚚
+    options:
+      - text: 'Digite o código de rastreamento:'
+        options: []
+        questions:
+          - text: Código de rastreamento
+            answer: ''
+    questions: []
+  - text: 3️⃣ Informações sobre Entrega 🕒
+    options:
+      - text: Verificar Status de Entrega
+        options: []
+        questions:
+          - text: Número do Pedido
+            answer: ''
+      - text: Alterar Endereço de Entrega
+        options: []
+        questions:
+          - text: Novo Endereço
+            answer: ''
+      - text: Dúvidas sobre Prazo de Entrega
+        options: []
+        questions: []
+    questions: []
+  - text: 4️⃣ Suporte ao Cliente 📞
+    options:
+      - text: Falar com um Atendente
+        options: []
+        questions: []
+      - text: Relatar Problema com Pedido
+        options: []
+        questions:
+          - text: Descreva o problema
+            answer: ''
+      - text: Outras Questões
+        options: []
+        questions: []
+    questions: []
+  - text: 5️⃣ Promoções e Descontos 🎉
+    options:
+      - text: Ofertas do Dia
+        options: []
+        questions: []
+      - text: Cupons Disponíveis
+        options: []
+        questions: []
+    questions: []
+questions: []

@@ -1,8 +1,21 @@
+const venom = require('venom-bot');
 const fs = require('fs');
 const path = require('path');
 const yaml = require('js-yaml');
-const venom = require('venom-bot');
-const { menuOptions } = require("./menu/menuOptions");
+// Obtendo o separador de caminho como uma string
+const sep  = path.sep;
+const { welcome } = require("."+sep+"menu"+sep+"menuOptions");
+// Pode fazer um menu personalizado com JSON tambem (descomente a linha abaixo):
+// const { menuOptions } = require("."+sep+"menu"+sep+"menuOptions");
+
+// Especificando o caminho do arquivo YAML
+const filePath = path.join('menu', 'menuOptions.yaml');
+
+// Lendo o conteúdo do arquivo YAML
+const yamlString = fs.readFileSync(filePath, 'utf-8');
+
+// Convertendo YAML para JSON
+const menuOptions = yaml.load(yamlString);
 
 const QUESTIONS_FOLDER = 'questions';
 
@@ -29,7 +42,7 @@ function createUserFolder(userId) {
 function sendOptionsOrQuestion(client, from, welcomeMessage = false) {
   const sendWelcomeMessage = () => {
     if (welcomeMessage) {
-      const welcomeText = "Olá! Sou o Sérgio Neres, consultor de seguros e especialista em proteção financeira e familiar. Seja bem-vindo! Estou aqui para ajudar a garantir a segurança e tranquilidade para você e sua família.";
+      const welcomeText = welcome;
       return client.sendText(from, welcomeText);
     }
     return Promise.resolve();
@@ -74,7 +87,7 @@ venom.create(
   },
   (browser, waPage) => {
     console.log('Browser PID:', browser.process().pid);
-    waPage.screenshot({ path: 'screenshot/screenshot.png' });
+    waPage.screenshot({ path: path.join('screenshot', 'screenshot.png') });
   }
 ).then((client) => {
   client.onMessage(async (message) => {
@@ -103,18 +116,38 @@ venom.create(
             return acc;
           }, {});
 
-          const fileName = `${currentMenu.text.replace(/\s/g, '_')}.yaml`;
-          writeUserAnswersToFile(userId, fileName, userAnswers[userId][currentMenu.text]);
-
-          currentMenu = previousMenus.pop();
-          sendOptionsOrQuestion(client, userId);
-
-          console.log('Respostas do Usuário:', userAnswers);
+          // Exibe a opção de salvar ou refazer
+          client.sendText(userId, '1 ~> Salvar\n2 ~> Refazer');
         }
       } else if (currentMenu.options[message.body - 1]) {
         previousMenus.push(currentMenu);
         currentMenu = currentMenu.options[message.body - 1];
         currentQuestions = currentMenu.questions.slice();
+        sendOptionsOrQuestion(client, userId);
+      } else if (message.body === '1') {
+        // Usuário escolheu salvar
+        // Implemente aqui o código para lidar com a opção de salvar
+        const fileName = `${currentMenu.text.replace(/\s/g, '_')}.yaml`;
+        writeUserAnswersToFile(userId, fileName, userAnswers[userId][currentMenu.text]);
+        // Se houver uma mensagem para exibir após salvar, envia aqui
+        if (currentMenu.text_after) {
+          await client.sendText(userId, currentMenu.text_after);
+        }
+
+
+        // Reinicia o menu
+        currentMenu = menuOptions;
+        previousMenus = [];
+        currentQuestions = [];
+        userAnswers = {};
+        sendOptionsOrQuestion(client, userId);
+      } else if (message.body === '2') {
+        // Usuário escolheu refazer
+        // Reinicia o menu
+        currentMenu = menuOptions;
+        previousMenus = [];
+        currentQuestions = [];
+        userAnswers = {};
         sendOptionsOrQuestion(client, userId);
       } else {
         client.sendText(userId, 'Opção inválida. Por favor, escolha um número válido.');
