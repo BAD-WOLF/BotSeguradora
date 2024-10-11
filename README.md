@@ -1,1 +1,1 @@
-# BotSeguradora
+# BotSeguradora (começou como tal)
